@@ -27,7 +27,7 @@ import { APP_GUARD } from '@nestjs/core'
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
-        DATABASE_URL: Joi.string().required(),
+        PORT: Joi.string().required(),
       }),
       validationOptions: {
         abortEarly: true, // Show 1 errors per times

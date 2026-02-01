@@ -1,18 +1,14 @@
 import { Module } from '@nestjs/common'
 import { CqrsModule } from '@nestjs/cqrs'
-import { DatabaseModule } from '~/infrastructure/database/database.module'
-import { MessagingModule } from '~/infrastructure/messaging/messaging.module'
-import { CreateInventoryHandler } from '~/application/commands/create-inventory/create-inventory.command.handler'
-import { GetStocksHandler } from '~/application/queries/get-stocks.query.handler'
-import { UpdateInventoryHandler } from '~/application/commands/update-inventory/update-inventory.command.handler'
+import { InfrastructureModule } from '~/infrastructure/infrastructure.module'
+import { SearchProductsHandler } from '~/application/queries/search/search.handler'
 
 const CommandHandlers = [
-  CreateInventoryHandler,
-  UpdateInventoryHandler
+
 ]
 
 const QueryHandlers = [
-  GetStocksHandler
+  SearchProductsHandler,
 ]
 
 const EventHandlers = [
@@ -22,8 +18,7 @@ const EventHandlers = [
 @Module({
   imports: [
     CqrsModule,
-    DatabaseModule,
-    MessagingModule
+    InfrastructureModule,
   ],
   providers: [
     ...CommandHandlers,
