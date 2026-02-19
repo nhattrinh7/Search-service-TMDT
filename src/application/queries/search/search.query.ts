@@ -9,5 +9,6 @@ export class SearchProductsQuery {
     public readonly minRating?: string,
     public readonly maxRating?: string,
     public readonly sort?: 'asc' | 'desc',
+    public readonly shopId?: string,
   ) {}
 }

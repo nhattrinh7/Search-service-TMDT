@@ -9,33 +9,34 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
   constructor(private readonly esService: NestElasticsearchService) {}
 
   async execute(query: SearchProductsQuery): Promise<SearchResponse> {
-    const { search, page, limit, rootCategory, minPrice, maxPrice, minRating, maxRating, sort } = query
+    const { search, page, limit, rootCategory, minPrice, maxPrice, minRating, maxRating, sort, shopId } = query
     const from = (page - 1) * limit
 
     // Build product query
-    const productQuery = this.buildProductQuery(search, rootCategory, minPrice, maxPrice, minRating, maxRating)
+    const productQuery = this.buildProductQuery(search, rootCategory, minPrice, maxPrice, minRating, maxRating, shopId)
 
-    // Build shop query
-    const shopQuery = this.buildShopQuery(search)
+    // Nếu có shopId thì tìm shop đó theo ID
+    // Nếu không có shopId thì tìm shops theo search term
+    const shopQuery = shopId ? this.buildShopQueryByShopId(shopId) : this.buildShopQuery(search)
 
     // Build sort for products (only if sort is provided)
     const productSort = sort ? [{ 'price.min': { order: sort } }] : undefined
 
     // Use msearch to query both indices in one request
-    const response = await this.esService.msearch({
-      searches: [
-        { index: PRODUCTS_INDEX },
-        { 
-          query: productQuery, 
-          from, 
-          size: limit, 
-          _source: ['id', 'name', 'main_image', 'price', 'ratingAvg', 'buy_count'],
-          ...(productSort && { sort: productSort }) 
-        },
-        { index: SHOPS_INDEX },
-        { query: shopQuery, from, size: limit },
-      ],
-    })
+    const searches = [
+      { index: PRODUCTS_INDEX },
+      { 
+        query: productQuery, 
+        from, 
+        size: limit, 
+        _source: ['id', 'name', 'main_image', 'price', 'ratingAvg', 'buy_count'],
+        ...(productSort && { sort: productSort }) 
+      },
+      { index: SHOPS_INDEX },
+      { query: shopQuery, from: 0, size: shopId ? 1 : limit, _source: ['id', 'name', 'description', 'logo'] },
+    ]
+
+    const response = await this.esService.msearch({ searches })
 
     const productResponse = response.responses[0]
     const shopResponse = response.responses[1]
@@ -55,7 +56,7 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
     // Extract shops
     const shops: ShopSearchResult[] = []
     let totalShops = 0
-    if ('hits' in shopResponse && shopResponse.hits) {
+    if (shopResponse && 'hits' in shopResponse && shopResponse.hits) {
       totalShops = typeof shopResponse.hits.total === 'number'
         ? shopResponse.hits.total
         : shopResponse.hits.total?.value ?? 0
@@ -93,6 +94,7 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
     maxPrice?: string,
     minRating?: string,
     maxRating?: string,
+    shopId?: string,
   ): Record<string, unknown> {
     const must: Record<string, unknown>[] = []
     const filter: Record<string, unknown>[] = [
@@ -108,6 +110,13 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
           fields: ['name^3', 'description', 'sku', 'attributes.*'],
           fuzziness: 'AUTO',
         },
+      })
+    }
+
+    // Filter by shopId (nếu có shopId thì chỉ tìm products của shop đó)
+    if (shopId) {
+      filter.push({
+        term: { shopId: shopId },
       })
     }
 
@@ -176,5 +185,11 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
     }
 
     return { match_all: {} }
+  }
+
+  private buildShopQueryByShopId(shopId: string): Record<string, unknown> {
+    return {
+      term: { id: shopId },
+    }
   }
 }

@@ -28,10 +28,11 @@ export class SearchController {
         query.minRating,
         query.maxRating,
         query.sort,
+        query.shopId,
       )
     )
     
-    return { message: 'Search products successful', data: result }
+    return { message: 'Search successful', data: result }
   }
 
 }

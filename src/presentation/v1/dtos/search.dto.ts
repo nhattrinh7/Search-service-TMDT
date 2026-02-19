@@ -58,5 +58,10 @@ export const SearchSchema = z.object({
     .string()
     .optional()
     .transform((val) => val || undefined),
+
+  shopId: z
+    .string()
+    .optional()
+    .transform((val) => val || undefined),
 })
 export class SearchDto extends createZodDto(SearchSchema) {}
