@@ -4,10 +4,10 @@ import {
   Query,
 } from '@nestjs/common'
 import { QueryBus } from '@nestjs/cqrs'
-import { SearchDto } from '~/presentation/v1/dtos/search.dto'
+import { SearchDto } from '~/presentation/dtos/search.dto'
 import { SearchProductsQuery } from '~/application/queries/search/search.query'
 
-@Controller('v1/search')
+@Controller('v1/searchs')
 export class SearchController {
   constructor(
     private readonly queryBus: QueryBus,
