@@ -29,6 +29,10 @@ import { RequestLoggingMiddleware } from '~/common/middleware/request-logging.mi
       isGlobal: true,
       validationSchema: Joi.object({
         PORT: Joi.string().required(),
+        ELASTICSEARCH_NODE: Joi.string().default('http://localhost:9200'),
+        REDIS_HOST: Joi.string().default('localhost'),
+        REDIS_PORT: Joi.number().default(6379),
+        REDIS_PASSWORD: Joi.string().allow('').optional(),
       }),
       validationOptions: {
         abortEarly: true, // Show 1 errors per times
