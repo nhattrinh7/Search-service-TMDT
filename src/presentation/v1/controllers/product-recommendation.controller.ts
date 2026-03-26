@@ -3,7 +3,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { TrackProductViewBodyDto, GetTodayRecommendationsQueryDto } from '~/presentation/dtos/recommendation.dto'
 import { TrackProductViewCommand } from '~/application/commands/track-product-view/track-product-view.command'
 import { GetTodayRecommendationsQuery } from '~/application/queries/get-today-recommendations/get-today-recommendations.query'
-import { ProductSearchResult } from '~/domain/types/search.types'
+import { ProductSearchResult } from '~/domain/interfaces/search.interface'
 
 @Controller('v1/recommendations')
 export class ProductRecommendationController {

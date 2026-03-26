@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ElasticsearchService as NestElasticsearchService } from '@nestjs/elasticsearch'
 import { PRODUCTS_INDEX } from '~/common/constants/index.constants'
 import { IProductSearchRepository } from '~/domain/repositories/product-search.repository.interface'
-import { ProductSearchDocument } from '~/domain/types/product-search.types'
+import { ProductSearchDocument } from '~/domain/interfaces/search.interface'
 
 @Injectable()
 export class ProductSearchRepository implements IProductSearchRepository {

@@ -1,4 +1,4 @@
-import { ProductSearchDocument } from '~/domain/types/product-search.types'
+import { ProductSearchDocument } from '~/domain/interfaces/search.interface'
 
 export interface IProductSearchRepository {
   getProductsByIds(ids: string[]): Promise<ProductSearchDocument[]>

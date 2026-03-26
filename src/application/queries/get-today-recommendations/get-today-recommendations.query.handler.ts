@@ -3,8 +3,7 @@ import { Inject } from '@nestjs/common'
 import { GetTodayRecommendationsQuery } from '~/application/queries/get-today-recommendations/get-today-recommendations.query'
 import { PRODUCT_SEARCH_REPOSITORY, type IProductSearchRepository } from '~/domain/repositories/product-search.repository.interface'
 import { RECENTLY_VIEWED_REPOSITORY, type IRecentlyViewedRepository } from '~/domain/repositories/recently-viewed.repository.interface'
-import { ProductSearchResult } from '~/domain/types/search.types'
-import type { ProductSearchDocument } from '~/domain/types/product-search.types'
+import { ProductSearchResult, type ProductSearchDocument } from '~/domain/interfaces/search.interface'
 import { RECENT_RATIO } from '~/common/constants/index.constants'
 
 @QueryHandler(GetTodayRecommendationsQuery)

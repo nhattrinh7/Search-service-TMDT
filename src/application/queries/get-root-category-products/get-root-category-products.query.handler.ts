@@ -1,9 +1,9 @@
-﻿import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
+import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
 import { ElasticsearchService as NestElasticsearchService } from '@nestjs/elasticsearch'
 import type { estypes } from '@elastic/elasticsearch'
-import { PRODUCTS_INDEX } from '~/common/constants/index.constants'
+import { PRODUCTS_INDEX, PRODUCT_SOURCE_FIELDS } from '~/common/constants/index.constants'
 import { GetRootCategoryProductsQuery } from '~/application/queries/get-root-category-products/get-root-category-products.query'
-import { PaginatedResult, ProductSearchResult } from '~/domain/types/search.types'
+import { PaginatedResult, ProductSearchResult } from '~/domain/interfaces/search.interface'
 
 @QueryHandler(GetRootCategoryProductsQuery)
 export class GetRootCategoryProductsHandler implements IQueryHandler<GetRootCategoryProductsQuery> {
@@ -24,7 +24,7 @@ export class GetRootCategoryProductsHandler implements IQueryHandler<GetRootCate
       query: productQuery,
       from,
       size: limit,
-      _source: ['id', 'name', 'main_image', 'price', 'ratingAvg', 'buy_count'],
+      _source: PRODUCT_SOURCE_FIELDS,
       sort: productSort,
     })
 

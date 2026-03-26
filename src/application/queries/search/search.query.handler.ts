@@ -1,8 +1,8 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
 import { ElasticsearchService as NestElasticsearchService } from '@nestjs/elasticsearch'
 import { SearchProductsQuery } from '~/application/queries/search/search.query'
-import { PRODUCTS_INDEX, SHOPS_INDEX } from '~/common/constants/index.constants'
-import { SearchResponse, ProductSearchResult, ShopSearchResult } from '~/domain/types/search.types'
+import { PRODUCTS_INDEX, SHOPS_INDEX, PRODUCT_SOURCE_FIELDS, SHOP_SOURCE_FIELDS, PRODUCT_SEARCH_FIELDS, SHOP_SEARCH_FIELDS, ES_FUZZINESS } from '~/common/constants/index.constants'
+import { SearchResponse, ProductSearchResult, ShopSearchResult } from '~/domain/interfaces/search.interface'
 
 @QueryHandler(SearchProductsQuery)
 export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery> {
@@ -29,11 +29,11 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
         query: productQuery, 
         from, 
         size: limit, 
-        _source: ['id', 'name', 'main_image', 'price', 'ratingAvg', 'buy_count'],
+        _source: PRODUCT_SOURCE_FIELDS,
         ...(productSort && { sort: productSort }) 
       },
       { index: SHOPS_INDEX },
-      { query: shopQuery, from: 0, size: shopId ? 1 : limit, _source: ['id', 'name', 'description', 'logo'] },
+      { query: shopQuery, from: 0, size: shopId ? 1 : limit, _source: SHOP_SOURCE_FIELDS },
     ]
 
     const response = await this.esService.msearch({ searches })
@@ -107,8 +107,8 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
       must.push({
         multi_match: {
           query: search,
-          fields: ['name^3', 'description', 'sku', 'attributes.*'],
-          fuzziness: 'AUTO',
+          fields: PRODUCT_SEARCH_FIELDS,
+          fuzziness: ES_FUZZINESS,
         },
       })
     }
@@ -178,8 +178,8 @@ export class SearchProductsHandler implements IQueryHandler<SearchProductsQuery>
       return {
         multi_match: {
           query: search,
-          fields: ['name^2', 'description'],
-          fuzziness: 'AUTO',
+          fields: SHOP_SEARCH_FIELDS,
+          fuzziness: ES_FUZZINESS,
         },
       }
     }
