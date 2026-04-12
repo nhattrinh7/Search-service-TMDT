@@ -1,3 +1,4 @@
+import { HealthModule } from './health/health.module'
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import Joi from 'joi'
@@ -10,23 +11,22 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler'
 import { APP_GUARD } from '@nestjs/core'
 import { RequestLoggingMiddleware } from '~/common/middleware/request-logging.middleware'
 
-
 @Module({
   imports: [
     ThrottlerModule.forRoot([
       {
-        name: 'short',  
-        ttl: 1000,          
-        limit: 100,          
+        name: 'short',
+        ttl: 1000,
+        limit: 100,
       },
       {
         name: 'long',
-        ttl: 60000,       
+        ttl: 60000,
         limit: 500,
-      }
+      },
     ]),
     ConfigModule.forRoot({
-      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,      
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
       isGlobal: true,
       validationSchema: Joi.object({
         PORT: Joi.string().required(),
@@ -34,7 +34,7 @@ import { RequestLoggingMiddleware } from '~/common/middleware/request-logging.mi
         REDIS_HOST: Joi.string().default('localhost'),
         REDIS_PORT: Joi.number().default(6379),
         REDIS_PASSWORD: Joi.string().allow('').default('redispassword').optional(),
-      
+
         SERVICE_NAME: Joi.string().required(),
         SERVICE_HOST: Joi.string().required(),
         RABBITMQ_HOST: Joi.string().required(),
@@ -46,6 +46,7 @@ import { RequestLoggingMiddleware } from '~/common/middleware/request-logging.mi
     InfrastructureModule,
     ApplicationModule,
     PresentationModule,
+    HealthModule,
   ],
   providers: [
     {

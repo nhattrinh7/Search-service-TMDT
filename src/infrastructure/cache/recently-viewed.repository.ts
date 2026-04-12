@@ -2,13 +2,15 @@ import { Inject, Injectable } from '@nestjs/common'
 import Redis from 'ioredis'
 import { REDIS_CLIENT } from '~/infrastructure/cache/redis.constants'
 import { IRecentlyViewedRepository } from '~/domain/repositories/recently-viewed.repository.interface'
-import { RECENTLY_VIEWED_PREFIX, RECENTLY_VIEWED_LIMIT, RECENTLY_VIEWED_TTL_SECONDS } from '~/common/constants/index.constants'
+import {
+  RECENTLY_VIEWED_PREFIX,
+  RECENTLY_VIEWED_LIMIT,
+  RECENTLY_VIEWED_TTL_SECONDS,
+} from '~/common/constants/index.constants'
 
 @Injectable()
 export class RecentlyViewedRepository implements IRecentlyViewedRepository {
-  constructor(
-    @Inject(REDIS_CLIENT) private readonly redis: Redis,
-  ) {}
+  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
 
   async addViewedProduct(userId: string, productId: string): Promise<void> {
     const key = `${RECENTLY_VIEWED_PREFIX}:${userId}`

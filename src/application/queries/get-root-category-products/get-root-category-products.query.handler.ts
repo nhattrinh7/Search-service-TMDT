@@ -9,11 +9,19 @@ import { PaginatedResult, ProductSearchResult } from '~/domain/interfaces/search
 export class GetRootCategoryProductsHandler implements IQueryHandler<GetRootCategoryProductsQuery> {
   constructor(private readonly esService: NestElasticsearchService) {}
 
-  async execute(query: GetRootCategoryProductsQuery): Promise<{ products: PaginatedResult<ProductSearchResult> }> {
+  async execute(
+    query: GetRootCategoryProductsQuery,
+  ): Promise<{ products: PaginatedResult<ProductSearchResult> }> {
     const { rootCategory, page, limit, minPrice, maxPrice, minRating, maxRating, sort } = query
     const from = (page - 1) * limit
 
-    const productQuery = this.buildProductQuery(rootCategory, minPrice, maxPrice, minRating, maxRating)
+    const productQuery = this.buildProductQuery(
+      rootCategory,
+      minPrice,
+      maxPrice,
+      minRating,
+      maxRating,
+    )
 
     const productSort: estypes.Sort = sort
       ? [{ 'price.min': { order: sort } }]
@@ -32,11 +40,12 @@ export class GetRootCategoryProductsHandler implements IQueryHandler<GetRootCate
     let totalProducts = 0
 
     if ('hits' in response && response.hits) {
-      totalProducts = typeof response.hits.total === 'number'
-        ? response.hits.total
-        : response.hits.total?.value ?? 0
+      totalProducts =
+        typeof response.hits.total === 'number'
+          ? response.hits.total
+          : (response.hits.total?.value ?? 0)
 
-      products.push(...response.hits.hits.map((hit) => hit._source as ProductSearchResult))
+      products.push(...response.hits.hits.map(hit => hit._source as ProductSearchResult))
     }
 
     return {
@@ -59,9 +68,7 @@ export class GetRootCategoryProductsHandler implements IQueryHandler<GetRootCate
     minRating?: string,
     maxRating?: string,
   ): Record<string, unknown> {
-    const filter: Record<string, unknown>[] = [
-      { term: { is_in_stock: true } },
-    ]
+    const filter: Record<string, unknown>[] = [{ term: { is_in_stock: true } }]
 
     const normalizedRoot = this.normalizeKeyword(rootCategory)
     filter.push({ term: { category_hierarchy: normalizedRoot } })

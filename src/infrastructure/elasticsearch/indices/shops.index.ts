@@ -35,4 +35,3 @@ export const SHOPS_INDEX_CONFIG = {
     },
   },
 }
-

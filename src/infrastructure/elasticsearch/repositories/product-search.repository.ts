@@ -17,8 +17,8 @@ export class ProductSearchRepository implements IProductSearchRepository {
     })
 
     return response.docs
-      .filter((doc) => this.hasSource(doc))
-      .map((doc) => (doc as { _source: ProductSearchDocument })._source)
+      .filter(doc => this.hasSource(doc))
+      .map(doc => (doc as { _source: ProductSearchDocument })._source)
   }
 
   async getTopProductsByBuyCount(limit: number): Promise<ProductSearchDocument[]> {
@@ -29,25 +29,18 @@ export class ProductSearchRepository implements IProductSearchRepository {
       size: limit,
       query: {
         bool: {
-          filter: [
-            { term: { is_in_stock: true } },
-          ],
+          filter: [{ term: { is_in_stock: true } }],
         },
       },
-      sort: [
-        { buy_count: { order: 'desc' } },
-        { ratingAvg: { order: 'desc' } },
-      ],
+      sort: [{ buy_count: { order: 'desc' } }, { ratingAvg: { order: 'desc' } }],
     })
 
     return response.hits.hits
-      .map((hit) => hit._source)
+      .map(hit => hit._source)
       .filter((item): item is ProductSearchDocument => Boolean(item))
   }
 
-  private hasSource(
-    doc: unknown,
-  ): doc is { _source: ProductSearchDocument, found?: boolean } {
+  private hasSource(doc: unknown): doc is { _source: ProductSearchDocument; found?: boolean } {
     if (!doc || typeof doc !== 'object') return false
     if (!('_source' in doc)) return false
     if ('found' in doc && (doc as { found?: boolean }).found === false) return false

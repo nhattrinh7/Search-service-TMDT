@@ -19,7 +19,10 @@ export class ElasticsearchService implements OnModuleInit {
     await this.ensureIndex(SHOPS_INDEX, SHOPS_INDEX_CONFIG)
   }
 
-  private async ensureIndex(indexName: string, config: { index: string; settings: unknown; mappings: unknown }) {
+  private async ensureIndex(
+    indexName: string,
+    config: { index: string; settings: unknown; mappings: unknown },
+  ) {
     try {
       const exists = await this.esService.indices.exists({ index: indexName })
 

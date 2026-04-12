@@ -1,9 +1,18 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs'
 import { Inject } from '@nestjs/common'
 import { GetTodayRecommendationsQuery } from '~/application/queries/get-today-recommendations/get-today-recommendations.query'
-import { PRODUCT_SEARCH_REPOSITORY, type IProductSearchRepository } from '~/domain/repositories/product-search.repository.interface'
-import { RECENTLY_VIEWED_REPOSITORY, type IRecentlyViewedRepository } from '~/domain/repositories/recently-viewed.repository.interface'
-import { ProductSearchResult, type ProductSearchDocument } from '~/domain/interfaces/search.interface'
+import {
+  PRODUCT_SEARCH_REPOSITORY,
+  type IProductSearchRepository,
+} from '~/domain/repositories/product-search.repository.interface'
+import {
+  RECENTLY_VIEWED_REPOSITORY,
+  type IRecentlyViewedRepository,
+} from '~/domain/repositories/recently-viewed.repository.interface'
+import {
+  ProductSearchResult,
+  type ProductSearchDocument,
+} from '~/domain/interfaces/search.interface'
 import { RECENT_RATIO } from '~/common/constants/index.constants'
 
 @QueryHandler(GetTodayRecommendationsQuery)
@@ -28,31 +37,31 @@ export class GetTodayRecommendationsHandler implements IQueryHandler<GetTodayRec
       : []
 
     // từ IDs lấy ra các sản phẩm tương ứng trong Elasticsearch
-    const recentProducts = recentIds.length > 0
-      ? await this.productSearchRepository.getProductsByIds(recentIds)
-      : []
+    const recentProducts =
+      recentIds.length > 0 ? await this.productSearchRepository.getProductsByIds(recentIds) : []
 
     // Lọc bỏ các sản phẩm hết hàng
-    const filteredRecent = recentProducts.filter((product) => product.is_in_stock)
+    const filteredRecent = recentProducts.filter(product => product.is_in_stock)
 
     // lọc trùng, còn dùng ở phía dưới để đảm bảo ko trùng giữa recent và top buy_count
-    const recentIdSet = new Set(filteredRecent.map((item) => item.id))
+    const recentIdSet = new Set(filteredRecent.map(item => item.id))
 
     const needTop = totalLimit - filteredRecent.length
-    const topProducts = needTop > 0
-      // đáng lẽ chỉ cần truyền needTop nhưng để phòng trường hợp có nhiều sản phẩm trong top buy_count bị hết hàng hoặc 
-      // trùng với recent thì lấy dư ra, nên truyền thêm 1 lượng recentIdSet.size, nếu tất cả sản phẩm trong recent đều
-      // trùng đi chăng nữa thì tí nữa lọc trùng cũng vẫn sẽ đủ số lượng cần thiết trả về
-      ? await this.productSearchRepository.getTopProductsByBuyCount(needTop + recentIdSet.size)
-      : []
+    const topProducts =
+      needTop > 0
+        ? // đáng lẽ chỉ cần truyền needTop nhưng để phòng trường hợp có nhiều sản phẩm trong top buy_count bị hết hàng hoặc
+          // trùng với recent thì lấy dư ra, nên truyền thêm 1 lượng recentIdSet.size, nếu tất cả sản phẩm trong recent đều
+          // trùng đi chăng nữa thì tí nữa lọc trùng cũng vẫn sẽ đủ số lượng cần thiết trả về
+          await this.productSearchRepository.getTopProductsByBuyCount(needTop + recentIdSet.size)
+        : []
 
-    const topFiltered = topProducts.filter((product) => !recentIdSet.has(product.id))
+    const topFiltered = topProducts.filter(product => !recentIdSet.has(product.id))
     const merged = [
       ...filteredRecent,
       ...topFiltered.slice(0, needTop), // dùng slice để đảm bảo ko trả về quá số lượng cần thiết
     ]
 
-    return { items: merged.map((product) => this.toSearchResult(product)) }
+    return { items: merged.map(product => this.toSearchResult(product)) }
   }
 
   private toSearchResult(product: ProductSearchDocument): ProductSearchResult {

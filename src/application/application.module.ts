@@ -6,9 +6,7 @@ import { GetRootCategoryProductsHandler } from '~/application/queries/get-root-c
 import { TrackProductViewHandler } from '~/application/commands/track-product-view/track-product-view.command.handler'
 import { GetTodayRecommendationsHandler } from '~/application/queries/get-today-recommendations/get-today-recommendations.query.handler'
 
-const CommandHandlers = [
-  TrackProductViewHandler,
-]
+const CommandHandlers = [TrackProductViewHandler]
 
 const QueryHandlers = [
   SearchProductsHandler,
@@ -16,20 +14,11 @@ const QueryHandlers = [
   GetTodayRecommendationsHandler,
 ]
 
-const EventHandlers = [
+const EventHandlers = []
 
-]
- 
 @Module({
-  imports: [
-    CqrsModule,
-    InfrastructureModule,
-  ],
-  providers: [
-    ...CommandHandlers,
-    ...QueryHandlers,
-    ...EventHandlers,
-  ],
+  imports: [CqrsModule, InfrastructureModule],
+  providers: [...CommandHandlers, ...QueryHandlers, ...EventHandlers],
   exports: [],
 })
 export class ApplicationModule {}

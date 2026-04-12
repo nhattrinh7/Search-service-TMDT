@@ -1,8 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-} from '@nestjs/common'
+import { Controller, Get, Query } from '@nestjs/common'
 import { QueryBus } from '@nestjs/cqrs'
 import { SearchDto } from '~/presentation/dtos/search.dto'
 import { SearchProductsQuery } from '~/application/queries/search/search.query'
@@ -11,14 +7,10 @@ import { GetRootCategoryProductsQuery } from '~/application/queries/get-root-cat
 
 @Controller('v1/searchs')
 export class SearchController {
-  constructor(
-    private readonly queryBus: QueryBus,
-  ) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
   @Get('/')
-  async search(
-    @Query() query: SearchDto,
-  ) {
+  async search(@Query() query: SearchDto) {
     const result = await this.queryBus.execute(
       new SearchProductsQuery(
         query.search,
@@ -31,17 +23,14 @@ export class SearchController {
         query.maxRating,
         query.sort,
         query.shopId,
-      )
+      ),
     )
-    
+
     return { message: 'Search successful', data: result }
   }
 
   @Get('/root-category-products')
-  async getRootCategoryProducts(
-    @Query() query: RootCategoryProductsDto,
-  ) {
-    console.log('query.rootCategory', query.rootCategory)
+  async getRootCategoryProducts(@Query() query: RootCategoryProductsDto) {
     const result = await this.queryBus.execute(
       new GetRootCategoryProductsQuery(
         query.rootCategory,
@@ -52,10 +41,9 @@ export class SearchController {
         query.minRating,
         query.maxRating,
         query.sort,
-      )
+      ),
     )
 
     return { message: 'Get root category products successful', data: result }
   }
-
 }
